@@ -3,13 +3,14 @@ from food import Food, FoodQuery, Foods
 from flask import Flask, request, jsonify
 from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
 from tinydb import TinyDB, Query
+from tinydb.storages import MemoryStorage
 
 server = Flask(__name__)
 
 spec = FlaskPydanticSpec('flask', title="Food API")
 spec.register(server)
 
-database = TinyDB('database.json')
+database = TinyDB(storage=MemoryStorage)
 
 @server.get('/foods')
 @spec.validate(query=FoodQuery, resp=Response(HTTP_200=Foods))
@@ -48,7 +49,7 @@ def post_food():
     body = request.context.body.dict()
     
     database.insert(body)
-    
+     
     return body
 
 @server.put('/food/<int:id>')
